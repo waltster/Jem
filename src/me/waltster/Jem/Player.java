@@ -4,7 +4,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Player {
 	public float yaw = 0.0f, pitch = 0.0f;
-	private float walkingSpeed = 01.5f;
+	private float walkingSpeed = 010.5f;
 	public Vector3d position;
 	
 	public Player(){

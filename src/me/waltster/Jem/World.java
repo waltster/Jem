@@ -1,26 +1,34 @@
 package me.waltster.Jem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
-import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 public class World {
-	public static final Vector3d worldDimensions = new Vector3d(64, 256, 64);
-	
+	public static final int CHUNK_X_COUNT = 7;
+	public static final int CHUNK_Y_COUNT = 2;
+	public static final int CHUNK_Z_COUNT = 7;
+		
 	public String name = "World";
 	public String seed = "JEM";
-	public Chunk[][][] chunks;
+	public List<Chunk> activeChunks;
+	public Map<String, Chunk> loadedChunks;
 	public Random random = new Random();
 	public Player[] players = new Player[32];
 	public ArrayList<Vector4f> blocks = new ArrayList<Vector4f>();
 	public PerlinNoiseGenerator perlinGen;
+	private long timeSinceLastDisplayUpdate = 0;
 	int counter = 0;
 	
 	public World(Player p){
-		chunks = new Chunk[4][2][4];
+		activeChunks = new ArrayList<Chunk>();
+		loadedChunks = new HashMap<String, Chunk>();
+		
 		players[0] = p;
 		perlinGen = new PerlinNoiseGenerator();
 		
@@ -30,94 +38,89 @@ public class World {
 			Jem.LOGGER.log(Level.SEVERE, null, e);
 		}
 		
-		generateWorld();
-	}
-	
-	public void render(){
-		for(int x = 0; x < chunks.length; x++){
-			for(int y = 0; y < chunks[x].length; y++){
-				for(int z = 0; z < chunks[x][y].length; z++){
-					if(chunks[x][y][z] != null){
-						chunks[x][y][z].render();
-					}
+	/*	Runnable r = new Runnable(){
+			@Override
+			public void run() {
+				generateWorld();
+			}
+		};
+		
+		new Thread(r).start();*/
+		
+		Vector3d v;
+		Chunk temp;
+		
+		for(int x = 0; x < CHUNK_X_COUNT; x++){
+			for(int y= 0; y < CHUNK_Y_COUNT; y++){
+				for(int z = 0; z < CHUNK_Z_COUNT; z++){
+					v = new Vector3d(x,y,z);
+					temp = new Chunk(v);
+					
+					loadedChunks.put(v.toString(), temp);
+					generateChunk(temp);
+			//		temp.updateList();
 				}
 			}
 		}
 	}
 	
-	public void generateWorld(){
-		for(int x = 0; x < 4; x++){
-			for(int y = 0; y < 2; y++){
-				for(int z = 0; z < 4; z++){
-					if(chunks[x][y][z] == null){
-						Chunk c = new Chunk(new Vector3d(x, y, z));
-						chunks[x][y][z] = c;
-					}
-					
-					this.generateChunk(chunks[x][y][z]);
+	public void render(){
+		for(Chunk c : loadedChunks.values()){
+			c.render();
+			
+			if(c.updateList()){
+				timeSinceLastDisplayUpdate = System.currentTimeMillis();
+			}
+		}
+	}
+	
+	public void generateChunk(Chunk c){
+		for(int x = 0; x < Chunk.chunkDimensions.x; x++){
+			for(int z = 0; z < Chunk.chunkDimensions.z; z++){
+				float height = perlinGen.getTerrainHeightAt((x + (float)c.getPosition().x * (float)Chunk.chunkDimensions.x) / 4.0f, (z + (float)c.getPosition().z * (float)Chunk.chunkDimensions.z) / 4.0f);
+				
+				if(height < 0){
+					height = 0;
+				}
+				
+				float y = height * 256 + 32.0f;
+				
+				if(y > 128){
+					y = 128;
+				}
+				
+				c.setBlock((int)x, (int)y, (int)z, 1);
+				y--;
+				
+				while(y > 0){
+					c.setBlock((int)x, (int)y, (int)z, 2);
+					y--;
 				}
 			}
 		}
 	}
 	
 	public void setBlock(Vector3d position, int type){
-		Vector3d chunkPosition = new Vector3d((float)Math.floor(position.x / Chunk.chunkDimensions.x), (float)Math.floor(position.y / Chunk.chunkDimensions.y), (float)Math.floor(position.z / Chunk.chunkDimensions.z));
-		Vector3d blockCoord = new Vector3d(position.x - (chunkPosition.x * Chunk.chunkDimensions.x), position.y - (chunkPosition.y * Chunk.chunkDimensions.y), position.z - (chunkPosition.z * Chunk.chunkDimensions.z));
-		
-		Chunk c = chunks[(int)chunkPosition.x][(int)chunkPosition.y][(int)chunkPosition.z];
-		
-		if(c == null){
-			c = new Chunk(new Vector3d(chunkPosition.x, chunkPosition.y, chunkPosition.z));
-			chunks[(int)chunkPosition.x][(int)chunkPosition.y][(int)chunkPosition.z] = c;
-		}
-		
-		c.setBlock((int)blockCoord.x, (int)blockCoord.y, (int)blockCoord.z, type);
-		c.updateList();
+		getChunk(position).setBlock((int)(position.x % Chunk.chunkDimensions.x), (int)(position.y % Chunk.chunkDimensions.y), (int)(position.z % Chunk.chunkDimensions.z), type);
 	}
 	
-	public void generateChunk(Chunk c){
-		int[][][] blocks = c.getBlocks();
+	public Chunk getChunk(Vector3d position){
+		int x = (int)(position.x / Chunk.chunkDimensions.x);
+		int y=  (int)(position.y / Chunk.chunkDimensions.y);
+		int z = (int)(position.z / Chunk.chunkDimensions.z);
 		
-		for(int x = 0; x < Chunk.chunkDimensions.x; x++){
-			for(int z = 0; z < Chunk.chunkDimensions.z; z++){
-				float height = perlinGen.getTerrainHeightAt((float)(x + (c.getPosition().x * Chunk.chunkDimensions.x)) / 2f, (float)(z + (c.getPosition().z * Chunk.chunkDimensions.z)) / 2f);
-				
-				if(height < 0){
-					height = 0;
-				}
-				
-				float y = height * 512 + 16;
-				Jem.LOGGER.info(y + "");
-				if(y > 126){
-					y = 126;
-				}
-				
-				int specialY = (int)y;
-				Jem.LOGGER.info("Y: " + specialY);
-				blocks[x][specialY][z] = 1;
-				specialY--;
-				
-				while(specialY >= 0){
-					blocks[x][specialY][z] = 1;
-					specialY--;
-				}
-			}
-		}
-		/*for(int x = 0; x < Chunk.chunkDimensions.x; x++){
-			for(int y = 0; y < Chunk.chunkDimensions.y; y++){
-				for(int z = 0; z < Chunk.chunkDimensions.z; z++){
-					c.setBlock(x, y, z, 1);
-				}
-			}
-		}*/
+		Chunk c = loadedChunks.get(new Vector3d(x, y, z).toString());
 		
-		for(int x = 0; x < Chunk.chunkDimensions.x; x++){
-			for(int y = 0; y < Chunk.chunkDimensions.y; y++){
-				for(int z = 0; z < Chunk.chunkDimensions.z; z++){
-					c.setBlock(x, y, z, blocks[x][y][z]);
-				}
-			}
+		if(c == null){
+			c = new Chunk(new Vector3d(x,y,z));
+			loadedChunks.put(position.toString(), c);
+			generateChunk(loadedChunks.get(position.toString()));
 		}
-		c.updateList();
+		
+		return c;
+	}
+	
+	public Vector3d worldToChunkCoordinates(Vector3d coords){
+		return new Vector3d((int)(coords.x % Chunk.chunkDimensions.x), (int)(coords.y % Chunk.chunkDimensions.y), (int)(coords.z % Chunk.chunkDimensions.z));
 	}
 }

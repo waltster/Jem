@@ -57,15 +57,15 @@ public class Jem {
 		glClearColor(0.5f, 0.75f, 1.0f, 1.0f);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_FOG);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_COLOR_MATERIAL);
-		glFogi(GL_FOG_MODE, GL_LINEAR);
+		//glEnable(GL_FOG);
+		//glDisable(GL_LIGHTING);
+		//glDisable(GL_COLOR_MATERIAL);
+		/*glFogi(GL_FOG_MODE, GL_LINEAR);
 		glFogf(GL_FOG_DENSITY, 1.0f);
 		glHint(GL_FOG_HINT, GL_DONT_CARE);
 		glFogf(GL_FOG_START, 512.0f);
 		glFogf(GL_FOG_END, 1024.0f);
-		
+		*/
 		try{
 			Class.forName("me.waltster.Jem.Chunk");
 			Class.forName("me.waltster.Jem.BlockRegistry");
@@ -129,7 +129,6 @@ public class Jem {
 			render();
 			
 			Display.update();
-			Display.sync(60);
 		}
 	}
 	
