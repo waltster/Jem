@@ -19,6 +19,7 @@ public class Chunk {
 	private int[][][] blocks;
 	private int displayListID = -1, chunkID = -1;
 	private Vector3d position;
+	public boolean dirty = false;
 	
 	static{
 		try{
@@ -32,81 +33,131 @@ public class Chunk {
 		this.position = position;
 		chunkID = maxChunkID;
 		maxChunkID++;
-		
+		displayListID = glGenLists(1);
 		blocks = new int[(int) chunkDimensions.x][(int) chunkDimensions.y][(int) chunkDimensions.z];
 	}
 	
-	public void updateList(){
-		if(displayListID == -1){
-			displayListID = glGenLists(1);
+	public boolean updateList(){
+		if(dirty){
 			textureMap.bind();
-			
+
 			glNewList(displayListID, GL_COMPILE);
 			glBegin(GL_QUADS);
-			
+
 			boolean front = true, back = true, left = true, right = true, top = true, bottom = true;
-			
-			for(int x = 0; x < chunkDimensions.x; x++){
-				for(int y = 0; y < chunkDimensions.y; y++){
-					for(int z = 0; z < chunkDimensions.z; z++){
-						if(blocks[x][y][z] > 0){
+
+			for (int x = 0; x < chunkDimensions.x; x++) {
+				for (int y = 0; y < chunkDimensions.y; y++) {
+					for (int z = 0; z < chunkDimensions.z; z++) {
+						if (blocks[x][y][z] > 0) {
 							glColor3f(0, 0, 0);
 							// Front
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+
 							glColor3f(0, 0, 0);
 							// Back
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+
 							glColor3f(0, 0, 1);
 							// Left
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(-0.5f + z + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+
 							glColor3f(1, 0, 0);
 							// Right
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z+ (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+
 							glColor3f(0, 1, 0);
 							// Top
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), 0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							
-							glColor3f(0,0,0);
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+
+							glColor3f(0, 0, 0);
 							// Bottom
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), -0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
-							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x), -0.5f + y + (this.position.y * Chunk.chunkDimensions.y), 0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(-0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									-0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
+							glVertex3d(0.5f + x + (this.position.x * Chunk.chunkDimensions.x),
+									-0.5f + y + (this.position.y * Chunk.chunkDimensions.y),
+									0.5f + z + (this.position.z * Chunk.chunkDimensions.z));
 						}
 					}
 				}
 			}
-			
+
 			glEnd();
 			glEndList();
+			
+			dirty = false;
+			return true;
 		}
+		
+		return false;
 	}
 	
 	public void render(){
-		if(displayListID >= 0){
-			glPushMatrix();
-			glCallList(displayListID);
-			glPopMatrix();
-		}
+		glPushMatrix();
+		glCallList(displayListID);
+		glPopMatrix();
 	}
 	
 	public int getBlock(int x, int y, int z){
@@ -119,5 +170,14 @@ public class Chunk {
 	
 	public void setBlock(int x, int y, int z, int type){
 		blocks[x][y][z] = type;
+		dirty = true;
+	}
+	
+	public Vector3d getPosition(){
+		return this.position;
+	}
+	
+	public int[][][] getBlocks(){
+		return blocks;
 	}
 }

@@ -8,6 +8,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GL11;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.*;
@@ -54,18 +55,16 @@ public class Jem {
 	
 	public void init(){
 		glClearColor(0.5f, 0.75f, 1.0f, 1.0f);
-		//glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_FOG);
-		
 		glDisable(GL_LIGHTING);
 		glDisable(GL_COLOR_MATERIAL);
 		glFogi(GL_FOG_MODE, GL_LINEAR);
 		glFogf(GL_FOG_DENSITY, 1.0f);
 		glHint(GL_FOG_HINT, GL_DONT_CARE);
-		glFogf(GL_FOG_START, 300.0f);
-		glFogf(GL_FOG_END, 400.0f);
+		glFogf(GL_FOG_START, 512.0f);
+		glFogf(GL_FOG_END, 1024.0f);
 		
 		try{
 			Class.forName("me.waltster.Jem.Chunk");
@@ -77,6 +76,15 @@ public class Jem {
 		world = new World(player);
 		player=  new Player();
 		
+		glViewport(0, 0, (int)DISPLAY_WIDTH, DISPLAY_HEIGHT);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(64.0f, (float)DISPLAY_WIDTH / (float)DISPLAY_HEIGHT, 1f, 1024f);
+		glPushMatrix();
+		
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glPushMatrix();
 	}
 	
 	public void processKeyboard(){
@@ -95,6 +103,14 @@ public class Jem {
 		if(Keyboard.isKeyDown(Keyboard.KEY_D)){
 			player.strafeRight();
 		}
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)){
+			player.rise();
+		}
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)){
+			player.fall();
+		}
 	}
 	
 	public void render(){
@@ -104,16 +120,6 @@ public class Jem {
 			player.render();
 			world.render();
 		glPopMatrix();
-		
-		glViewport(0, 0, (int)DISPLAY_WIDTH, DISPLAY_HEIGHT);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(64.0f, (float)DISPLAY_WIDTH / (float)DISPLAY_HEIGHT, 1f, 1024f);
-		glPushMatrix();
-		
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glPushMatrix();
 	}
 	
 	public void run(){

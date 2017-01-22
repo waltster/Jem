@@ -8,7 +8,7 @@ public class Player {
 	public Vector3d position;
 	
 	public Player(){
-		this.position = new Vector3d(0.0f, -64.0f, 0.0f);
+		this.position = new Vector3d(0.0f, -100.0f, 0.0f);
 	}
 	
 	public void render(){
@@ -43,5 +43,13 @@ public class Player {
 	public void strafeRight(){
 		position.x -= walkingSpeed * (float)Math.sin(Math.toRadians(yaw + 90));
 		position.z += walkingSpeed * (float)Math.cos(Math.toRadians(yaw + 90));
+	}
+	
+	public void fall(){
+		position.y += walkingSpeed;
+	}
+	
+	public void rise(){
+		position.y -= walkingSpeed;
 	}
 }
