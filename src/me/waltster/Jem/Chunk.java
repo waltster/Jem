@@ -11,7 +11,7 @@ import me.waltster.Jem.Block.Blockside;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Chunk {
-	public static Vector3d chunkDimensions = new Vector3d(16, 128, 16);
+	public static Vector3d chunkDimensions = new Vector3d(64, 128, 64);
 	
 	private static int maxChunkID = 0;
 	private static Texture textureMap;
@@ -19,7 +19,7 @@ public class Chunk {
 	private int[][][] blocks;
 	private int displayListID = -1, debugListID = -1, chunkID = -1;
 	private Vector3d position;
-	public boolean dirty = false;
+	public boolean dirty = false, debugMode = true;
 	
 	static{
 		try{
@@ -201,7 +201,10 @@ public class Chunk {
 		glPushMatrix();
 		glTranslated(this.position.x * Chunk.chunkDimensions.x, this.position.y * Chunk.chunkDimensions.y, this.position.z * Chunk.chunkDimensions.z);
 		glCallList(displayListID);
-		glCallList(debugListID);
+		
+		if(this.debugMode){
+			glCallList(debugListID);
+		}
 		glPopMatrix();
 	}
 	

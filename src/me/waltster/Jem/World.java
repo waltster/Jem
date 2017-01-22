@@ -10,12 +10,16 @@ import java.util.logging.Level;
 import org.lwjgl.util.vector.Vector4f;
 
 public class World {
-	public static final int CHUNK_X_COUNT = 7;
+	public static final int CHUNK_X_COUNT = 5;
 	public static final int CHUNK_Y_COUNT = 2;
-	public static final int CHUNK_Z_COUNT = 7;
-		
+	public static final int CHUNK_Z_COUNT = 5;
+	public static final String[] SEEDS = new String[]{
+			"JEM",
+			"YODA",
+			"XABC",
+			"DEADBEEF"
+	};
 	public String name = "World";
-	public String seed = "JEM";
 	public List<Chunk> activeChunks;
 	public Map<String, Chunk> loadedChunks;
 	public Random random = new Random();
@@ -30,7 +34,7 @@ public class World {
 		loadedChunks = new HashMap<String, Chunk>();
 		
 		players[0] = p;
-		perlinGen = new PerlinNoiseGenerator();
+		perlinGen = new PerlinNoiseGenerator(SEEDS[new Random().nextInt(SEEDS.length - 1)]);
 		
 		try{
 			Class.forName("me.waltster.Jem.Chunk");
@@ -75,25 +79,27 @@ public class World {
 	}
 	
 	public void generateChunk(Chunk c){
+		if(c.getPosition().y > 0){
+			return;
+		}
+		
 		for(int x = 0; x < Chunk.chunkDimensions.x; x++){
 			for(int z = 0; z < Chunk.chunkDimensions.z; z++){
-				float height = perlinGen.getTerrainHeightAt((x + (float)c.getPosition().x * (float)Chunk.chunkDimensions.x) / 4.0f, (z + (float)c.getPosition().z * (float)Chunk.chunkDimensions.z) / 4.0f);
+				float height = terrainElevation((float)(x + (c.getPosition().x * Chunk.chunkDimensions.x)), (float)(z + (c.getPosition().z * Chunk.chunkDimensions.z))) + (terrainRougness((float)(x + (c.getPosition().x * Chunk.chunkDimensions.x)), (float)(z + (c.getPosition().z * Chunk.chunkDimensions.z))) * terrainDetail((float)(x + (c.getPosition().x * Chunk.chunkDimensions.x)), (float)(z + (c.getPosition().z * Chunk.chunkDimensions.z)))) * 64 + 64;
+				float y = height;
 				
-				if(height < 0){
-					height = 0;
+				if(y >= 128){
+					y = 127;
 				}
-				
-				float y = height * 256 + 32.0f;
-				
-				if(y > 128){
-					y = 128;
-				}
-				
-				c.setBlock((int)x, (int)y, (int)z, 1);
-				y--;
-				
 				while(y > 0){
-					c.setBlock((int)x, (int)y, (int)z, 2);
+					if(caveDensity(x, y, z) < 0.25){
+						if(height == y){
+							c.setBlock(x, (int)height, z, 1);
+						}
+						
+						c.setBlock(x, (int)y, z, 1);
+					}
+					
 					y--;
 				}
 			}
@@ -122,5 +128,29 @@ public class World {
 	
 	public Vector3d worldToChunkCoordinates(Vector3d coords){
 		return new Vector3d((int)(coords.x % Chunk.chunkDimensions.x), (int)(coords.y % Chunk.chunkDimensions.y), (int)(coords.z % Chunk.chunkDimensions.z));
+	}
+	
+	private float terrainElevation(float x, float z){
+		float result = 0.0f;
+		result += perlinGen.noise(0.0009f * x, 0.0009f, 0.0009f * z) * 256.0f;
+		return result;
+	}
+	
+	private float terrainRougness(float x, float z){
+		float result = 0.0f;
+		result += perlinGen.noise(0.001f * x, 0.001f, 0.001f * z);
+		return result;
+	}
+	
+	private float terrainDetail(float x, float z){
+		float result = 0.0f;
+		result += perlinGen.noise(0.09f * x, 0.09f, 0.09f * z);
+		return result;
+	}
+	
+	private float caveDensity(float x, float y, float z){
+		float result = 0.0f;
+		result += perlinGen.noise(0.02f * x, 0.02f * y, 0.02f * z);
+		return result;
 	}
 }

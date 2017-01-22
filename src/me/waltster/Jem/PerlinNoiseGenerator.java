@@ -16,11 +16,15 @@
  */
 package me.waltster.Jem;
 
+import java.util.Random;
+
 /**
- * Perlin noise function as shown in "Physically Based Rendering".
+ * 3D perlin noise function as shown in the book "Physically Based Rendering".
  * @author Benjamin Glatzel <benjamin.glatzel@me.com>
  */
 public class PerlinNoiseGenerator {
+
+    Random rand;
 
     static int noisePerm[] = {
         151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96,
@@ -51,6 +55,14 @@ public class PerlinNoiseGenerator {
         49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
         138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
     };
+
+    public PerlinNoiseGenerator(String seed) {
+        rand = new Random(seed.hashCode());
+
+        for (int i = 0; i < noisePerm.length; i++) {
+            noisePerm[i] = Math.abs(rand.nextInt()) % (noisePerm.length / 2);
+        }
+    }
 
     public float noise(float x, float y, float z) {
         // Compute noise cell coordinates and offsets
@@ -99,18 +111,5 @@ public class PerlinNoiseGenerator {
         float t3 = t * t * t;
         float t4 = t3 * t;
         return 6.f * t4 * t - 15.f * t4 + 10.f * t3;
-    }
-
-    float getTerrainHeightAt(float x, float y) {
-        float result = 0.0f;
-        result += noise(0.01f * x, 0.01f * y, 0.01f) * 0.75;
-        result += noise(0.04f * x, 0.04f * y, 0.02f) * 0.25;
-        return result;
-    }
-
-    float getCaveHeightAt(float x, float y) {
-        float result = 0.0f;
-        result += noise(0.025f * x, 0.025f * y, 50f);
-        return result;
     }
 }

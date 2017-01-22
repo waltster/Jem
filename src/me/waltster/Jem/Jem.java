@@ -1,5 +1,21 @@
 package me.waltster.Jem;
 
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glPopMatrix;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
+import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.util.glu.GLU.gluPerspective;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -8,10 +24,6 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
-
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.util.glu.GLU.*;
 
 public class Jem {
 	public static final int DISPLAY_HEIGHT = 768;
@@ -110,6 +122,16 @@ public class Jem {
 		
 		if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)){
 			player.fall();
+		}
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_Q)){
+			if(!Keyboard.isRepeatEvent()){
+				Mouse.setGrabbed(!Mouse.isGrabbed());
+			}
+		}
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_T)){
+			Jem.LOGGER.info("Breakpoint");
 		}
 	}
 	
