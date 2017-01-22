@@ -14,8 +14,8 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.*;
 
 public class Jem {
-	public static final int DISPLAY_HEIGHT = 600;
-	public static final int DISPLAY_WIDTH = 800;
+	public static final int DISPLAY_HEIGHT = 768;
+	public static final int DISPLAY_WIDTH = 1024;
 	public static final Logger LOGGER = Logger.getLogger("Jem");
 	public static final float MOUSE_SENSITIVITY = 0.1f;
 	private Player player;
