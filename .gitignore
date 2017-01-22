@@ -4,7 +4,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.ear
 
@@ -62,3 +61,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 /bin1/
+/bin/
