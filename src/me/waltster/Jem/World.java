@@ -34,7 +34,9 @@ public class World {
 		loadedChunks = new HashMap<String, Chunk>();
 		
 		players[0] = p;
-		perlinGen = new PerlinNoiseGenerator(SEEDS[new Random().nextInt(SEEDS.length - 1)]);
+		String seed = SEEDS[new Random().nextInt(SEEDS.length - 1)];
+		Jem.LOGGER.info("Seed: " + seed);
+		perlinGen = new PerlinNoiseGenerator("amelia");
 		
 		try{
 			Class.forName("me.waltster.Jem.Chunk");
@@ -85,12 +87,16 @@ public class World {
 		
 		for(int x = 0; x < Chunk.chunkDimensions.x; x++){
 			for(int z = 0; z < Chunk.chunkDimensions.z; z++){
-				float height = terrainElevation((float)(x + (c.getPosition().x * Chunk.chunkDimensions.x)), (float)(z + (c.getPosition().z * Chunk.chunkDimensions.z))) + (terrainRougness((float)(x + (c.getPosition().x * Chunk.chunkDimensions.x)), (float)(z + (c.getPosition().z * Chunk.chunkDimensions.z))) * terrainDetail((float)(x + (c.getPosition().x * Chunk.chunkDimensions.x)), (float)(z + (c.getPosition().z * Chunk.chunkDimensions.z)))) * 64 + 64;
+				float convertedX = (float)(x + (c.getPosition().x * Chunk.chunkDimensions.x));
+				float convertedZ = (float)(z + (c.getPosition().z * Chunk.chunkDimensions.z));
+				
+				float height = terrainElevation(convertedX, convertedZ) + terrainRougness(convertedX, convertedZ) * terrainDetail(convertedX, convertedZ) * 64 + 64;
 				float y = height;
 				
 				if(y >= 128){
 					y = 127;
 				}
+				
 				while(y > 0){
 					if(caveDensity(x, y, z) < 0.25){
 						if(height == y){
