@@ -17,7 +17,10 @@ public class World {
 			"JEM",
 			"YODA",
 			"XABC",
-			"DEADBEEF"
+			"DEADBEEF",
+			"MOM",
+			"dad",
+			"BLAG"
 	};
 	public String name = "World";
 	public List<Chunk> activeChunks;
@@ -36,7 +39,7 @@ public class World {
 		players[0] = p;
 		String seed = SEEDS[new Random().nextInt(SEEDS.length - 1)];
 		Jem.LOGGER.info("Seed: " + seed);
-		perlinGen = new PerlinNoiseGenerator("amelia");
+		perlinGen = new PerlinNoiseGenerator(seed);
 		
 		try{
 			Class.forName("me.waltster.Jem.Chunk");
@@ -98,7 +101,7 @@ public class World {
 				}
 				
 				while(y > 0){
-					if(caveDensity(x, y, z) < 0.25){
+					if(caveDensity(x, y, z) < 0.5){
 						if(height == y){
 							c.setBlock(x, (int)height, z, 1);
 						}
@@ -114,6 +117,10 @@ public class World {
 	
 	public void setBlock(Vector3d position, int type){
 		getChunk(position).setBlock((int)(position.x % Chunk.chunkDimensions.x), (int)(position.y % Chunk.chunkDimensions.y), (int)(position.z % Chunk.chunkDimensions.z), type);
+	}
+	
+	public void getBlock(Vector3d position){
+		getChunk(position).getBlock((int)(position.x % Chunk.chunkDimensions.x), (int)(position.y % Chunk.chunkDimensions.y), (int)(position.z % Chunk.chunkDimensions.z));
 	}
 	
 	public Chunk getChunk(Vector3d position){

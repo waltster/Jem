@@ -123,7 +123,7 @@ public class Chunk {
 									-0.5f + y1,
 									-0.5f + z1);
 
-							glColor3f(0, 0, 1);
+							glColor3f(0, 0, 0);
 							// Left
 							glVertex3d(-0.5f + x1,
 									-0.5f + y1,
@@ -138,7 +138,7 @@ public class Chunk {
 									-0.5f + y1,
 									0.5f + z1);
 
-							glColor3f(1, 0, 0);
+							glColor3f(0, 0, 0);
 							// Right
 							glVertex3d(0.5f + x1,
 									-0.5f + y1,

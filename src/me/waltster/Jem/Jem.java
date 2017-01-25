@@ -55,14 +55,12 @@ public class Jem {
 	
 	public void create() throws LWJGLException{
 		Display.setDisplayMode(new DisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT));
-		Display.setFullscreen(false);
+		Display.setFullscreen(true);
 		Display.setTitle("Jem");
 		Display.create();
 		Keyboard.create();
 		Mouse.setGrabbed(true);
 		Mouse.create();
-		
-		init();
 	}
 	
 	public void init(){
