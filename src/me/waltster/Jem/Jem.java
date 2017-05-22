@@ -35,6 +35,7 @@ public class Jem {
 	
 	public static void main(String args[]){
 		Jem jem = null;
+		ErrorHandler.init();
 		
 		try{
 			jem = new Jem();
@@ -48,7 +49,8 @@ public class Jem {
 			Display.destroy();
 		}
 		
-		System.exit(0);
+		throw new RuntimeException("Afdyusigfuis");
+//	/	System.exit(0);
 	}
 	
 	public Jem(){}

@@ -78,11 +78,9 @@ public class Chunk {
             glEnd();
             glEndList();
             
-			textureMap.bind();
-
 			glNewList(displayListID, GL_COMPILE);
 			glBegin(GL_QUADS);
-
+			textureMap.bind();
 			boolean front = true, back = true, left = true, right = true, top = true, bottom = true;
 
 			for (int x = 0; x < chunkDimensions.x; x++) {
@@ -95,15 +93,19 @@ public class Chunk {
 
 							glColor3f(0, 0, 0);
 							// Front
+							glTexCoord2f(0, 0);
 							glVertex3d(-0.5f + x1,
 									-0.5f + y1,
 									0.5f + z1);
+							glTexCoord2f(0, 1);
 							glVertex3d(-0.5f + x1,
 									0.5f + y1,
 									0.5f + z1);
+							glTexCoord2f(1, 1);
 							glVertex3d(0.5f + x1,
 									0.5f + y1,
 									0.5f + z1);
+							glTexCoord2f(1, 0);
 							glVertex3d(0.5f + x1,
 									-0.5f + y1,
 									0.5f + z1);
